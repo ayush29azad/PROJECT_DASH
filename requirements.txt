@@ -2,3 +2,9 @@ streamlit
 pandas
 openpyxl
 plotly
+streamlit
+pandas
+st-gsheets-connection
+oauth2client
+gspread
+google-auth
