@@ -1,67 +1,51 @@
 import streamlit as st
-import pandas as pd
-import gspread
-import json
-import plotly.express as px
-from google.oauth2 import service_account
+import base64
 
-# --- Configuration ---
-SHEET_URL = "https://docs.google.com/spreadsheets/d/17ihEevHcYY3joMBGqT4T_MdxXVhfVkvk-Otp1M24RkU/edit"
-SHEET_NAME = "Sheet1"
+st.set_page_config(page_title="DDS Manager", layout="wide", initial_sidebar_state="expanded")
 
-st.set_page_config(page_title="Klocwork Health Dashboard", layout="centered")
+# Background Image Loader
+def get_b64(file):
+    with open(file, "rb") as f: return base64.b64encode(f.read()).decode()
 
-# --- CSS ---
-st.markdown("""
+img_b64 = get_b64("images/car.jpg")
+
+st.markdown(f"""
     <style>
-    .main .block-container { background-color: rgba(255, 255, 255, 0.95); padding: 3rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    h1 { color: #1A1A1A !important; text-align: center; text-transform: uppercase; }
+    .stApp {{
+        background-image: url("data:image/jpg;base64,{img_b64}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# --- Updated Authentication Logic ---
-def get_gspread_client():
-    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive"]
-    
-    # Cloud (Secrets) ya Local (File) se load karo
-    if "GSPREAD_JSON" in st.secrets:
-        creds_dict = json.loads(st.secrets["GSPREAD_JSON"])
-    else:
-        with open('klocdata-ce7e1565a827.json') as f:
-            creds_dict = json.load(f)
-            
-    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
-    client = gspread.authorize(creds)
-    return client
+# Load CSS
+with open("css/styleMain.css", "r") as f: st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# --- Main App ---
-client = get_gspread_client()
-sheet = client.open_by_url(SHEET_URL).worksheet(SHEET_NAME)
-df = pd.DataFrame(sheet.get_all_records())
+def get_logo_b64(file):
+    with open(file, "rb") as f:
+        # SVG ke liye content-type alag hota hai
+        data = base64.b64encode(f.read()).decode()
+    return f"data:image/svg+xml;base64,{data}"
 
-st.title("Klocwork Health Dashboard")
+logo_b64 = get_logo_b64("images/jlr_logo.svg")
 
-# --- UI Components ---
-with st.expander("➕ Add New Release"):
-    with st.form("add_form", clear_on_submit=True):
-        c1, c2 = st.columns([2, 1])
-        tag = c1.text_input("Release Tag")
-        count = c2.number_input("Defect Count", min_value=0)
-        if st.form_submit_button("Add to Database"):
-            sheet.append_row([tag, count])
-            st.rerun()
-
-edited_df = st.data_editor(df, use_container_width=True, num_rows="dynamic")
-
-if st.button("Save Changes"):
-    sheet.clear()
-    sheet.update([edited_df.columns.values.tolist()] + edited_df.values.tolist())
-    st.success("Saved!")
-    st.rerun()
-
-# --- Visualization ---
-st.subheader("Visual Analysis")
-n = st.slider("Select N releases", 5, len(edited_df), 5)
-plot_df = edited_df.tail(n)
-fig = px.line(plot_df, x='Release Tag', y='Defect Count', markers=True)
-st.plotly_chart(fig, use_container_width=True)
+# Ab header section mein use karo
+st.markdown(f"""
+    <div class="header-block">
+        <div class="header-text">
+            <h1>DI QUALITY DASHBOARD</h1>
+            <p>Quality Dashboard | Monitoring Health Metrics</p>
+        </div>
+        <div>
+            <img src="{logo_b64}" width="100">
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+# Buttons
+c1, c2 = st.columns(2)
+with c1: 
+    if st.button("🚀 KLOCKWORK DASHBOARD"): st.switch_page("pages/klocwork_app.py")
+with c2: 
+    if st.button("🧪 GTEST DASHBOARD"): st.switch_page("pages/gtest_app.py")

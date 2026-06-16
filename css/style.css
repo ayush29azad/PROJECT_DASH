@@ -1,0 +1,31 @@
+/* JLR Luxury Minimalist Style */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+
+html, body, [class*="st-"] {
+    font-family: 'Montserrat', sans-serif;
+}
+
+h1, h2, h3 {
+    font-weight: 300 !important;
+    text-transform: uppercase;
+    letter-spacing: 2px !important;
+    color: #1a1a1a;
+}
+
+div.stButton > button {
+    border: 1px solid #1a1a1a !important;
+    border-radius: 0 !important; 
+    background: transparent !important;
+    color: #1a1a1a !important;
+    transition: 0.3s;
+}
+
+div.stButton > button:hover {
+    background: #1a1a1a !important;
+    color: white !important;
+}
+
+section[data-testid="stSidebar"] {
+    background-color: #f8f8f8;
+    border-right: 1px solid #e0e0e0;
+}
